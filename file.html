@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>myJobs - Automated Job Search Information System</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f8; color: #333; }
+    header { background: #0077b6; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { margin: 0; font-size: 1.8rem; }
+    nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
+    main { padding: 20px; max-width: 1100px; margin: auto; }
+    section { background: white; margin-bottom: 30px; padding: 20px; border-radius: 6px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { color: #0077b6; }
+    label { display: block; margin: 8px 0 4px; }
+    input[type="text"], input[type="email"], input[type="password"], select, textarea {
+      width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+    }
+    button {
+      margin-top: 12px; background: #0077b6; border: none; color: white; padding: 10px 15px; cursor: pointer; border-radius: 4px;
+      font-size: 1rem;
+    }
+    button:hover { background: #005f86; }
+    #job-results .job-item {
+      border-bottom: 1px solid #ddd; padding: 10px 0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    #job-results .job-item:last-child { border: none; }
+    .job-info { max-width: 75%; }
+    .job-actions button {
+      margin-left: 10px; padding: 6px 12px; font-size: 0.9rem;
+    }
+    footer {
+      background: #003f5c; color: white; padding: 20px;
+      display: flex; flex-wrap: wrap; justify-content: space-between; font-size: 0.9rem;
+    }
+    footer div { margin-bottom: 15px; min-width: 200px; }
+    footer a { color: #90e0ef; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    h3.emphasis {
+      color: #005a87; font-weight: bold; margin-top: 20px; margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>myJobs</h1>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#job-listings">Job Listings</a>
+    <a href="#employer-login">Employer Login/Register</a>
+    <a href="#jobseeker-login">Jobseeker Login/Register</a>
+  </nav>
+</header>
+
+<main>
+
+  <section id="home">
+    <h2>Welcome to myJobs</h2>
+    <p>Your one-stop Automated Job Search Information System. Connect with employers, find your dream job, or post new job openings easily.</p>
+  </section>
+
+  <section id="about">
+    <h2>About myJobs</h2>
+    <p>myJobs helps bridge the gap between employers and job seekers by providing a smooth, automated platform for job searching, applications, and hiring.</p>
+  </section>
+
+  <section id="job-listings">
+    <h2>Job Listings</h2>
+    <p>Explore the latest job opportunities from verified employers. Use filters by category, location, or keywords to find your next career move.</p>
+
+    <h3 class="emphasis">Start your search today!</h3>
+    <form id="job-search-form" onsubmit="event.preventDefault(); searchJobs();">
+      <label for="search-keyword">Keyword:</label>
+      <input type="text" id="search-keyword" placeholder="e.g. Web Developer" />
+
+      <label for="search-category">Category:</label>
+      <select id="search-category">
+        <option value="">-- Select Category --</option>
+        <option>IT & Software</option>
+        <option>Marketing</option>
+        <option>Sales</option>
+        <option>Finance</option>
+        <option>Healthcare</option>
+        <option>Education</option>
+      </select>
+
+      <label for="search-location">Location:</label>
+      <input type="text" id="search-location" placeholder="e.g. New York" />
+
+      <button type="submit">Search Jobs</button>
+    </form>
+
+    <div id="job-results">
+      <!-- Jobs will appear here -->
+    </div>
+  </section>
+
+  <section id="jobseeker-login">
+    <h2>Jobseeker Login / Register</h2>
+    <form id="jobseeker-form" onsubmit="event.preventDefault(); saveJobseekerProfile();">
+      <label for="js-name">Full Name:</label>
+      <input type="text" id="js-name" required />
+
+      <label for="js-email">Email:</label>
+      <input type="email" id="js-email" required />
+
+      <label for="js-password">Password:</label>
+      <input type="password" id="js-password" required />
+
+      <label for="js-resume">Resume (paste text):</label>
+      <textarea id="js-resume" rows="6" placeholder="Paste your resume here..."></textarea>
+
+      <button type="submit">Save Profile / Resume</button>
+    </form>
+    <div id="jobseeker-message"></div>
+
+    <h3>Apply for a Job</h3>
+    <form id="apply-job-form" onsubmit="event.preventDefault(); applyForJob();">
+      <label for="apply-job-id">Job ID:</label>
+      <input type="text" id="apply-job-id" required />
+
+      <button type="submit">Apply</button>
+    </form>
+    <div id="application-status"></div>
+  </section>
+
+  <section id="employer-login">
+    <h2>Employer Login / Register</h2>
+    <form id="employer-form" onsubmit="event.preventDefault(); saveEmployerProfile();">
+      <label for="emp-name">Company Name:</label>
+      <input type="text" id="emp-name" required />
+
+      <label for="emp-email">Email:</label>
+      <input type="email" id="emp-email" required />
+
+      <label for="emp-password">Password:</label>
+      <input type="password" id="emp-password" required />
+
+      <button type="submit">Save Employer Profile</button>
+    </form>
+    <div id="employer-message"></div>
+
+    <h3 class="emphasis">Looking to hire? Post your job now!</h3>
+    <form id="post-job-form" onsubmit="event.preventDefault(); postJob();">
+      <label for="job-title">Job Title:</label>
+      <input type="text" id="job-title" required />
+
+      <label for="job-description">Description:</label>
+      <textarea id="job-description" rows="4" required></textarea>
+
+      <label for="job-qualifications">Qualifications:</label>
+      <textarea id="job-qualifications" rows="3" required></textarea>
+
+      <label for="job-location">Location:</label>
+      <input type="text" id="job-location" required />
+
+      <button type="submit">Post Job</button>
+    </form>
+
+    <h3>Manage Applications</h3>
+    <div id="employer-applications">
+      <p>Applications will appear here.</p>
+    </div>
+  </section>
+
+  <section id="admin-section">
+    <h2>Admin Dashboard</h2>
+    <p>Manage user access, monitor platform usage, and generate statistics here.</p>
+    <!-- Placeholder admin controls -->
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <h3>Contact Us</h3>
+    <p>Email: support@myjobs.com</p>
+    <p>Phone: +1 (555) 123-4567</p>
+    <p>Address: 123 Career St, Job City, USA</p>
+  </div>
+  <div>
+    <h3>Follow Us</h3>
+    <p><a href="#" target="_blank">Facebook</a></p>
+    <p><a href="#" target="_blank">Twitter</a></p>
+    <p><a href="#" target="_blank">LinkedIn</a></p>
+  </div>
+  <div>
+    <h3>Terms & Conditions</h3>
+    <p><a href="#">Read Terms & Conditions</a></p>
+  </div>
+  <div>
+    <h3>Help / FAQs</h3>
+    <p><a href="#">Frequently Asked Questions</a></p>
+  </div>
+</footer>
+
+<script>
+  // Example job data
+  const jobs = [
+    {
+      id: 'J101',
+      title: 'Frontend Developer',
+      company: 'Tech Solutions Inc',
+      location: 'New York',
+      postingDate: '2025-05-25',
+      description: 'Build and maintain web interfaces.',
+      qualifications: 'Experience in React.js and HTML/CSS.',
+    },
+    {
+      id: 'J102',
+      title: 'Marketing Specialist',
+      company: 'MarketPro',
+      location: 'San Francisco',
+      postingDate: '2025-05-20',
+      description: 'Plan and execute marketing campaigns.',
+      qualifications: 'Strong communication and social media skills.',
+    }
+  ];
+
+  // Store jobseekers and employers in localStorage for demo
+  function saveJobseekerProfile() {
+    const name = document.getElementById('js-name').value.trim();
+    const email = document.getElementById('js-email').value.trim();
+    const password = document.getElementById('js-password').value.trim();
+    const resume = document.getElementById('js-resume').value.trim();
+
+    if (!name || !email || !password) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    const jobseeker = { name, email, password, resume, applications: [] };
+    localStorage.setItem('jobseeker-' + email, JSON.stringify(jobseeker));
+    document.getElementById('jobseeker-message').textContent = 'Profile saved successfully.';
+  }
+
+  function saveEmployerProfile() {
+    const name = document.getElementById('emp-name').value.trim();
+    const email = document.getElementById('emp-email').value.trim();
+    const password = document.getElementById('emp-password').value.trim();
+
+    if (!name || !email || !password) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    const employer = { name, email, password, jobs: [] };
+    localStorage.setItem('employer-' + email, JSON.stringify(employer));
+    document.getElementById('employer-message').textContent = 'Employer profile saved successfully.';
+  }
+
+  function postJob() {
+    const title = document.getElementById('job-title').value.trim();
+    const description = document.getElementById('job-description').value.trim();
+    const qualifications = document.getElementById('job-qualifications').value.trim();
+    const location = document.getElementById('job-location').value.trim();
+
+    if (!title || !description || !qualifications || !location) {
+      alert('Please fill in all job details.');
+      return;
+    }
+
+    const newJob = {
+      id: 'J' + (jobs.length + 101),
+      title,
+      company: 'Your Company',
+      location,
+      postingDate: new Date().toISOString().slice(0,10),
+      description,
+      qualifications,
+    };
+    jobs.push(newJob);
+    alert('Job posted successfully!');
+    document.getElementById('post-job-form').reset();
+    displayJobs(jobs);
+  }
+
+  function searchJobs() {
+    const keyword = document.getElementById('search-keyword').value.toLowerCase();
+    const category = document.getElementById('search-category').value.toLowerCase();
+    const location = document.getElementById('search-location').value.toLowerCase();
+
+    let filteredJobs = jobs.filter(job => {
+      const matchesKeyword = keyword ? 
+        (job.title.toLowerCase().includes(keyword) || job.description.toLowerCase().includes(keyword)) : true;
+      const matchesCategory = category ? job.title.toLowerCase().includes(category) : true; // simple category filter
+      const matchesLocation = location ? job.location.toLowerCase().includes(location) : true;
+
+      return matchesKeyword && matchesCategory && matchesLocation;
+    });
+
+    displayJobs(filteredJobs);
+  }
+
+  function displayJobs(jobList) {
+    const container = document.getElementById('job-results');
+    container.innerHTML = '';
+    if (jobList.length === 0) {
+      container.textContent = 'No jobs found.';
+      return;
+    }
+    jobList.forEach(job => {
+      const div = document.createElement('div');
+      div.className = 'job-item';
+      div.innerHTML = `
+        <div class="job-info">
+          <strong>${job.title}</strong> at <em>${job.company}</em><br/>
+          Location: ${job.location} | Posted: ${job.postingDate}
+        </div>
+        <div class="job-actions">
+          <button onclick="applyForJobPrompt('${job.id}')">Apply</button>
+          <button onclick="viewJobDetails('${job.id}')">View Details</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function applyForJobPrompt(jobId) {
+    document.getElementById('apply-job-id').value = jobId;
+    alert('Job ID filled for application: ' + jobId + '. Please fill your profile and click Apply.');
+  }
+
+  function applyForJob() {
+    const jobId = document.getElementById('apply-job-id').value.trim();
+    const email = document.getElementById('js-email').value.trim();
+
+    if (!jobId || !email) {
+      alert('Please enter Job ID and ensure your jobseeker email is filled.');
+      return;
+    }
+
+    let jobseekerData = localStorage.getItem('jobseeker-' + email);
+    if (!jobseekerData) {
+      alert('Jobseeker profile not found. Please register first.');
+      return;
+    }
+
+    let jobseeker = JSON.parse(jobseekerData);
+    if (jobseeker.applications.includes(jobId)) {
+      alert('You have already applied for this job.');
+      return;
+    }
+
+    jobseeker.applications.push(jobId);
+    localStorage.setItem('jobseeker-' + email, JSON.stringify(jobseeker));
+    document.getElementById('application-status').textContent = `Application for Job ID ${jobId} sent successfully.`;
+  }
+
+  function viewJobDetails(jobId) {
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) {
+      alert('Job not found.');
+      return;
+    }
+    alert(`Job Details:\n\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location}\nPosted: ${job.postingDate}\n\nDescription:\n${job.description}\n\nQualifications:\n${job.qualifications}`);
+  }
+
+  // Initial display of jobs
+  displayJobs(jobs);
+</script>
+
+</body>
+</html>
